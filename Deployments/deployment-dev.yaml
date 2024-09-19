@@ -1,0 +1,53 @@
+# DNS: <service-name>.dev.svc.cluster.local
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: development
+  namespace: dev
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: development
+  template:
+    metadata:
+      labels:
+        app: development
+    spec:
+      containers:
+      - name: dev-account-services      # TODO: CREATE DEV CONTAINERS IN ECR
+        image: account-services:latest  # TODO: REWRITE TO MATCH AWS DEV CONTAINERS
+        ports:
+        - containerPort: 80             # TODO: REWRITE TO MATCH ACTUAL PORTS
+      - name: dev-auth-services
+        image: auth-services:latest
+        ports:
+        - containerPort: 81
+      - name: dev-budget-services
+        image: budget-services:latest
+        ports:
+        - containerPort: 82
+      - name: dev-credit-score-service
+        image: credit-score-service:latest
+        ports:
+        - containerPort: 83
+      - name: dev-discovery-service
+        image: discovery-service:latest
+        ports:
+        - containerPort: 84
+      - name: dev-gateway-service
+        image: gateway-service:latest
+        ports:
+        - containerPort: 85
+      - name: dev-tax-service
+        image: tax-service:latest
+        ports:
+        - containerPort: 86
+      - name: dev-transaction-service
+        image: transaction-service:latest
+        ports:
+        - containerPort: 87
+      - name: dev-user-service
+        image: user-service:latest
+        ports:
+        - containerPort: 88
