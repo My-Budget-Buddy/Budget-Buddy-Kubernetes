@@ -14,7 +14,9 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-  # Potentially need: "- host: <host-name>"
+  # Could add "- host: <host-name>" to have all rules apply to a hostname, which would likely be api.skillstorm-congo.com.
+  # However, by omitting the host name, the rules will apply to all inbound traffic. Given we're using Route53 and the GatewayService,
+  # adding the host may be redundant.
   - http:
       paths:
       - path: /
