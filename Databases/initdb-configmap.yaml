@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: <service-name>-initdb-configmap
+  name: initdb-configmap
 data:
   init.sql: |
     CREATE DATABASE my_budget_buddy;
