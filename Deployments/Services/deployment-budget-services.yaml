@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: budget
+  name: budget-services
 spec:
   selector:
-    app: budget
+    app: budget-services
   ports:
     - protocol: TCP
       port: 8082
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: budget
+  name: budget-services
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: budget
+  name: budget-services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: budget
+      app: budget-services
   template:
     metadata:
-      name: budget
+      name: budget-services
       labels:
-        app: budget
+        app: budget-services
     spec:
-      serviceAccountName: budget
+      serviceAccountName: budget-services
       containers:
-        - name: budget
+        - name: budget-services
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/budget-services:latest
           ports:
             - containerPort: 8082

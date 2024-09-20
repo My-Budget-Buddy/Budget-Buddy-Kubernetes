@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: tax
+  name: tax-service
 spec:
   selector:
-    app: tax
+    app: tax-service
   ports:
     - protocol: TCP
       port: 8084
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tax
+  name: tax-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tax
+  name: tax-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tax
+      app: tax-service
   template:
     metadata:
-      name: tax
+      name: tax-service
       labels:
-        app: tax
+        app: tax-service
     spec:
-      serviceAccountName: tax
+      serviceAccountName: tax-service
       containers:
-        - name: tax
+        - name: tax-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/tax-service:latest
           ports:
             - containerPort: 8084

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: account
+  name: account-services
 spec:
   selector:
-    app: account
+    app: account-services
   ports:
     - protocol: TCP
       port: 8080
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: account
+  name: account-services
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: account
+  name: account-services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: account
+      app: account-services
   template:
     metadata:
-      name: account
+      name: account-services
       labels:
-        app: account
+        app: account-services
     spec:
       serviceAccountName: account
       containers:
-        - name: account
+        - name: account-services
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/account-services:latest
           ports:
             - containerPort: 8080

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth
+  name: auth-services
 spec:
   selector:
-    app: auth
+    app: auth-services
   ports:
     - protocol: TCP
       port: 8888
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: auth
+  name: auth-services
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
+  name: auth-services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth
+      app: auth-services
   template:
     metadata:
-      name: auth
+      name: auth-services
       labels:
-        app: auth
+        app: auth-services
     spec:
-      serviceAccountName: auth
+      serviceAccountName: auth-services
       containers:
-        - name: auth
+        - name: auth-services
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/auth-services:latest
           ports:
             - containerPort: 8888

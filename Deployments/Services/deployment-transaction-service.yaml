@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: transaction
+  name: transaction-service
 spec:
   selector:
-    app: transaction
+    app: transaction-service
   ports:
     - protocol: TCP
       port: 8083
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: transaction
+  name: transaction-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transaction
+  name: transaction-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transaction
+      app: transaction-service
   template:
     metadata:
-      name: transaction
+      name: transaction-service
       labels:
-        app: transaction
+        app: transaction-service
     spec:
-      serviceAccountName: transaction
+      serviceAccountName: transaction-service
       containers:
-        - name: transaction
+        - name: transaction-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/transaction-service:latest
           ports:
             - containerPort: 8083

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: credit-score
+  name: credit-score-service
 spec:
   selector:
-    app: credit-score
+    app: credit-score-service
   ports:
     - protocol: TCP
       port: 8085
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: credit-score
+  name: credit-score-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: credit-score
+  name: credit-score-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: credit-score
+      app: credit-score-service
   template:
     metadata:
-      name: credit-score
+      name: credit-score-service
       labels:
-        app: credit-score
+        app: credit-score-service
     spec:
-      serviceAccountName: credit-score
+      serviceAccountName: credit-score-service
       containers:
-        - name: credit-score
+        - name: credit-score-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/credit-score-service:latest
           ports:
             - containerPort: 8085

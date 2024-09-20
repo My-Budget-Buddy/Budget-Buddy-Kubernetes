@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: discovery
+  name: discovery-service
 spec:
   selector:
-    app: discovery
+    app: discovery-service
   ports:
     - protocol: TCP
       port: 8761
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: discovery
+  name: discovery-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: discovery
+  name: discovery-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: discovery
+      app: discovery-service
   template:
     metadata:
-      name: discovery
+      name: discovery-service
       labels:
-        app: discovery
+        app: discovery-service
     spec:
-      serviceAccountName: discovery
+      serviceAccountName: discovery-service
       containers:
-        - name: discovery
+        - name: discovery-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/discovery-service:latest
           ports:
             - containerPort: 8761
