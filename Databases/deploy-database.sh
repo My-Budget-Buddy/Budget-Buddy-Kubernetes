@@ -21,6 +21,7 @@ else
     echo "Namespace $NAMESPACE already exists."
 fi
 
+# MUTATES FILES!
 # replace placeholders (<postgres-user>, <postgres-password>) in yamls with the passed arguments
 sed -i "s/<postgres-user>/$POSTGRES_USERNAME/" postgres-secret.yaml
 sed -i "s/<postgres-password>/$POSTGRES_PASSWORD/" postgres-secret.yaml
