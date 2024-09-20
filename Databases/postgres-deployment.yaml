@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: <service-name>-postgres
   labels:
-    app: postgres
+    app: <service-name>-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: <service-name>-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: <service-name>-postgres
     spec:
       containers:
-        - name: postgres
+        - name: <service-name>-postgres
           image: postgres:13
           ports:
             - containerPort: 5432
@@ -25,12 +25,12 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: <service-name>-secret
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: <service-name>-secret
                   key: POSTGRES_PASSWORD
           volumeMounts:
             - name: postgres-initdb
@@ -45,8 +45,8 @@ spec:
               memory: "256Mi"
               cpu: "250m"
       volumes:
-        - name: postgres-initdb
+        - name: <service-name>-postgres-initdb
           configMap:
-            name: initdb-configmap
+            name: <service-name>-initdb-configmap
         - name: postgres-data
           emptyDir: {}
