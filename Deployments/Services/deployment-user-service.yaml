@@ -45,7 +45,7 @@ spec:
           env:
             - name: DATABASE_URL
               # jdbc:postgresql://user-postgres.staging.svc.cluster.local:5432/my_budget_buddy
-              value: jdbc:postgresql://user-postgres.staging.svc.cluster.local:5432/my_budget_buddy
+              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
