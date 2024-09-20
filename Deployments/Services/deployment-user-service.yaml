@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: users
+  name: user-service
 spec:
   selector:
-    app: users
+    app: user-service
   ports:
     - protocol: TCP
       port: 8081
@@ -13,26 +13,26 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: users
+  name: user-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: users
+  name: user-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: users
+      app: user-service
   template:
     metadata:
-      name: users
+      name: user-service
       labels:
-        app: users
+        app: user-service
     spec:
-      serviceAccountName: users
+      serviceAccountName: user-service
       containers:
-        - name: users
+        - name: user-service
           # image-version e.g. test-latest, prod-latest
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/user-service:<image-version>
           ports:
