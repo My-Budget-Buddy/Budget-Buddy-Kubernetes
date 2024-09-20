@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment #could use a stateful instead for stateful applications
 metadata:
-  name: <service-name>-postgres
+  name: postgres
   labels:
-    app: <service-name>-postgres
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: <service-name>-postgres
+      app: postgres
   template:
     metadata:
       labels:
-        app: <service-name>-postgres
+        app: postgres
     spec:
       containers:
-        - name: <service-name>-postgres
+        - name: postgres
           image: postgres:13
           ports:
             - containerPort: 5432
@@ -25,15 +25,15 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: <service-name>-secret
+                  name: postgres-secret
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: <service-name>-secret
+                  name: postgres-secret
                   key: POSTGRES_PASSWORD
           volumeMounts:
-            - name: <service-name>-postgres-initdb
+            - name: postgres-initdb
               mountPath: /docker-entrypoint-initdb.d
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
@@ -45,8 +45,8 @@ spec:
               memory: "256Mi"
               cpu: "250m"
       volumes:
-        - name: <service-name>-postgres-initdb
+        - name: postgres-initdb
           configMap:
-            name: <service-name>-initdb-configmap
+            name: initdb-configmap
         - name: postgres-data
           emptyDir: {}

@@ -33,7 +33,7 @@ spec:
       serviceAccountName: budget-services
       containers:
         - name: budget-services
-          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/budget-services:latest
+          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/budget-services:<image-version>
           ports:
             - containerPort: 8082
               name: http
@@ -43,14 +43,14 @@ spec:
               memory: "512Mi"
           env:
             - name: DATABASE_URL
-              value: jdbc:postgresql://db:5432/my_budget_buddy
+              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: budget-secret
+                  name: postgres-secret
                   key: POSTGRES_USER
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: budget-secret
+                  name: postgres-secret
                   key: POSTGRES_PASSWORD
