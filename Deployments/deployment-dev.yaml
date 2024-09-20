@@ -1,9 +1,9 @@
-# DNS: <service-name>.dev.svc.cluster.local
+# DNS: <service-name>.staging.svc.cluster.local
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: development
-  namespace: dev
+  namespace: staging
 spec:
   replicas: 3
   selector:

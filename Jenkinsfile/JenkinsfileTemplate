@@ -148,7 +148,7 @@ pipeline {
                             sh '''
                                 mvn sonar:sonar \
                                     -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-${PASCAL_SERVICE_NAME} \
-                                    -Dsonar.projectName=Budget-Buddy-<pascal-service-name> \
+                                    -Dsonar.projectName=Budget-Buddy-${PASCAL_SERVICE_NAME} \
                                     -Dsonar.java.binaries=target/classes \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
                                     -Dsonar.branch.name=testing-cohort
@@ -181,8 +181,8 @@ pipeline {
                         withSonarQubeEnv('SonarCloud') {
                             sh '''
                                 mvn sonar:sonar \
-                                    -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-<pascal-service-name> \
-                                    -Dsonar.projectName=Budget-Buddy-<pascal-service-name> \
+                                    -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-${PASCAL_SERVICE_NAME} \
+                                    -Dsonar.projectName=Budget-Buddy-${PASCAL_SERVICE_NAME} \
                                     -Dsonar.java.binaries=target/classes \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
                                     -Dsonar.branch.name=testing-main
