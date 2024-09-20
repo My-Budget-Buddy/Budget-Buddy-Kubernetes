@@ -47,10 +47,10 @@ spec:
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: users-secret
+                  name: user-secret
                   key: POSTGRES_USER
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: users-secret
+                  name: user-secret
                   key: POSTGRES_PASSWORD
