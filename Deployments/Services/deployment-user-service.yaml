@@ -43,7 +43,7 @@ spec:
               memory: "512Mi"
           env:
             - name: DATABASE_URL
-              value: jdbc:postgresql://users-postgres.devops-tools.svc.cluster.local:5432/my_budget_buddy
+              value: jdbc:postgresql://user-postgres.devops-tools.svc.cluster.local:5432/my_budget_buddy
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
