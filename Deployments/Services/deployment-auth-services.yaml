@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+spec:
+  selector:
+    app: auth
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,7 +43,7 @@ spec:
               memory: "512Mi"
           env:
             - name: DATABASE_URL
-              value: jdbc:postgresql://db:5432/my_budget_buddy
+              value: jdbc:postgresql://db:5432/my_auth_buddy
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:

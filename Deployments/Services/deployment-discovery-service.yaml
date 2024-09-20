@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery
+spec:
+  selector:
+    app: discovery
+  ports:
+    - protocol: TCP
+      port: 8761
+      targetPort: 8761
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: discovery
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

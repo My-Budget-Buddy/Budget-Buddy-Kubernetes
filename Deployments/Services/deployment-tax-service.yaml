@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tax
+spec:
+  selector:
+    app: tax
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tax
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
