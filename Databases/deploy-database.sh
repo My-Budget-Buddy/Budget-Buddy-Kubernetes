@@ -16,8 +16,6 @@ SERVICE_NAME=$2
 POSTGRES_USERNAME=$3
 POSTGRES_PASSWORD=$4
 
-cd kubernetes
-
 # replace placeholders (<service-name>) in yamls with the passed arguments
 sed -i "s/<postgres-user>/$POSTGRES_USERNAME/" postgres-secret.yaml
 sed -i "s/<postgres-password>/$POSTGRES_PASSWORD/" postgres-secret.yaml
