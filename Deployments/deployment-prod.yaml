@@ -20,36 +20,36 @@ spec:
       - name: prod-account-services     # TODO: CREATE PROD CONTAINERS IN ECR
         image: account-services:latest  # TODO: REWRITE TO MATCH AWS PROD CONTAINERS
         ports:
-        - containerPort: 80             # TODO: REWRITE TO MATCH ACTUAL PORTS
+        - containerPort: 8080
       - name: prod-auth-services
         image: auth-services:latest
         ports:
-        - containerPort: 81
+        - containerPort: 8888
       - name: prod-budget-services
         image: budget-services:latest
         ports:
-        - containerPort: 82
+        - containerPort: 8082
       - name: prod-credit-score-service
         image: credit-score-service:latest
         ports:
-        - containerPort: 83
+        - containerPort: 8085
       - name: prod-discovery-service
         image: discovery-service:latest
         ports:
-        - containerPort: 84
+        - containerPort: 8761
       - name: prod-gateway-service
         image: gateway-service:latest
         ports:
-        - containerPort: 85
+        - containerPort: 8125
       - name: prod-tax-service
         image: tax-service:latest
         ports:
-        - containerPort: 86
+        - containerPort: 8084
       - name: prod-transaction-service
         image: transaction-service:latest
         ports:
-        - containerPort: 87
+        - containerPort: 8083
       - name: prod-user-service
         image: user-service:latest
         ports:
-        - containerPort: 88
+        - containerPort: 8081
