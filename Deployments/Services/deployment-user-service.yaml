@@ -33,7 +33,8 @@ spec:
       serviceAccountName: users
       containers:
         - name: users
-          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+          # image-version e.g. test-latest, prod-latest
+          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/user-service:<image-version>
           ports:
             - containerPort: 8081
               name: http
@@ -43,7 +44,8 @@ spec:
               memory: "512Mi"
           env:
             - name: DATABASE_URL
-              value: jdbc:postgresql://user-postgres.devops-tools.svc.cluster.local:5432/my_budget_buddy
+              # jdbc:postgresql://user-postgres.devops-tools.svc.cluster.local:5432/my_budget_buddy
+              value: <db-url>
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
