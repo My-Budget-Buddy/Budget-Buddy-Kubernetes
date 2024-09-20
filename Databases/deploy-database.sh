@@ -16,6 +16,15 @@ SERVICE_NAME=$2
 POSTGRES_USERNAME=$3
 POSTGRES_PASSWORD=$4
 
+# check if namespace exists, create if it doesn't
+if ! kubectl get namespace "$NAMESPACE" >/dev/null 2>&1; then
+    echo "Namespace $NAMESPACE does not exist. Creating it..."
+    kubectl create namespace "$NAMESPACE"
+    echo "Namespace $NAMESPACE created."
+else
+    echo "Namespace $NAMESPACE already exists."
+fi
+
 # replace placeholders (<service-name>) in yamls with the passed arguments
 sed -i "s/<postgres-user>/$POSTGRES_USERNAME/" postgres-secret.yaml
 sed -i "s/<postgres-password>/$POSTGRES_PASSWORD/" postgres-secret.yaml
