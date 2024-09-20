@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery
+  template:
+    metadata:
+      name: discovery
+      labels:
+        app: discovery
+    spec:
+      serviceAccountName: discovery
+      containers:
+        - name: discovery
+          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/discovery-service:latest
+          ports:
+            - containerPort: 8761
+              name: http
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://db:5432/my_budget_buddy
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD

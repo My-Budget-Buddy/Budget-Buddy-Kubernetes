@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      name: users
+      labels:
+        app: users
+    spec:
+      serviceAccountName: users
+      containers:
+        - name: users
+          image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+          ports:
+            - containerPort: 8081
+              name: http
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://db:5432/my_budget_buddy
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
