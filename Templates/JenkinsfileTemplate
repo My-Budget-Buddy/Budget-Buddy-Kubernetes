@@ -259,6 +259,9 @@ pipeline {
             # note use of | as delimiter because of forward slashes in the url
             sed -i 's|<db-url>|jdbc:****ql://${SERVICE_NAME}-postgres.${NAMESPACE}.svc.cluster.local:5432/my_budget_buddy/|' deployment-${SERVICE_NAME}.yaml
 
+            # set eureka URL
+            sed -i 's|<eureka-url>|${EUREKA_URL}|' deployment-${SERVICE_NAME}.yaml
+
             # reapply
 
             kubectl delete -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE} || true 

@@ -44,6 +44,9 @@ spec:
           env:
             - name: DATABASE_URL
               value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
+            - name: EUREKA_URL
+              value: <eureka-url>
+
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
