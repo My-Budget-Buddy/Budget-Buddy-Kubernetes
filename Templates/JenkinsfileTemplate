@@ -87,7 +87,9 @@ pipeline {
     stages {
         // Pull all git dependencies
         stage('Pull Dependencies'){
-            sh 'git clone https://github.com/My-Budget-Buddy/Budget-Buddy-Kubernetes.git'
+            steps{
+              sh 'git clone https://github.com/My-Budget-Buddy/Budget-Buddy-Kubernetes.git'
+            }
         }
 
         // Build the project for the staging environment
