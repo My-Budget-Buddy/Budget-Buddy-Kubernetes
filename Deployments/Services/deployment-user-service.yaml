@@ -46,15 +46,16 @@ spec:
               cpu: "100m"
               memory: "256Mi"
           env:
+            - name: EUREKA_URL
+              value: http://discovery-service:8761/eureka
             - name: DATABASE_URL
-              # jdbc:postgresql://user-postgres.staging.svc.cluster.local:5432/my_budget_buddy
-              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
+              value: jdbc:postgresql://postgres:5432/my_budget_buddy
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_USER
-            - name: DATABASE_PASS
+            - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
