@@ -37,10 +37,6 @@ spec:
           ports:
             - containerPort: 8084
               name: http
-          resources:
-            limits:
-              cpu: "1"
-              memory: "512Mi"
           env:
             - name: DATABASE_URL
               value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
@@ -49,7 +45,7 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_USER
-            - name: DATABASE_PASSWORD
+            - name: DATABASE_PASS
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
