@@ -33,8 +33,9 @@ spec:
       serviceAccountName: user-service
       containers:
         - name: user-service
-          # image-version e.g. test-latest, prod-latest
+          # image-version e.g. <image-version>, prod-latest
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/user-service:<image-version>
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
               name: http
@@ -46,16 +47,20 @@ spec:
               cpu: "100m"
               memory: "256Mi"
           env:
+            - name: AWS_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: EUREKA_URL
               value: http://discovery-service:8761/eureka
             - name: DATABASE_URL
-              value: jdbc:postgresql://postgres:5432/my_budget_buddy
+              value: <database-url>
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_USER
-            - name: DATABASE_PASSWORD
+            - name: DATABASE_PASS
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret

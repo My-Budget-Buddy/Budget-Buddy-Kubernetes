@@ -34,23 +34,28 @@ spec:
       containers:
         - name: gateway-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/gateway-service:<image-version>
+          imagePullPolicy: Always
           ports:
             - containerPort: 8125
               name: http
           resources:
-          limits:
-            cpu: "1"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
           env:
+            - name: AWS_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: FRONTEND_URL
+              value: https://frontend.skillstorm-congo.com/
             - name: EUREKA_URL
               value: http://discovery-service:8761/eureka
             - name: DATABASE_URL
-              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
-            - name: EUREKA_URL
-              value: <eureka-url>
+              value: <database-url>
 
             - name: DATABASE_USER
               valueFrom:

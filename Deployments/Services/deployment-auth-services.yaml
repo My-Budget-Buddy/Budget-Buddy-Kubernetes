@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-services
+  name: auth-service
 spec:
   selector:
-    app: auth-services
+    app: auth-service
   ports:
     - protocol: TCP
       port: 8888
@@ -13,27 +13,28 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: auth-services
+  name: auth-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-services
+  name: auth-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-services
+      app: auth-service
   template:
     metadata:
-      name: auth-services
+      name: auth-service
       labels:
-        app: auth-services
+        app: auth-service
     spec:
-      serviceAccountName: auth-services
+      serviceAccountName: auth-service
       containers:
-        - name: auth-services
+        - name: auth-service
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/auth-services:<image-version>
+          imagePullPolicy: Always
           ports:
             - containerPort: 8888
               name: http
@@ -45,10 +46,14 @@ spec:
               cpu: "100m"
               memory: "256Mi"
           env:
+            - name: AWS_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: EUREKA_URL
               value: http://discovery-service:8761/eureka
             - name: DATABASE_URL
-              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
+              value: <database-url>
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
@@ -59,3 +64,19 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: DATABASE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            # deploy auth-secret separately
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: G_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: G_CLIENT_SECRET

@@ -30,10 +30,11 @@ spec:
       labels:
         app: account-services
     spec:
-      serviceAccountName: account
+      serviceAccountName: account-services
       containers:
         - name: account-services
           image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/account-services:<image-version>
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
@@ -45,10 +46,14 @@ spec:
               cpu: "100m"
               memory: "256Mi"
           env:
+            - name: AWS_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: EUREKA_URL
               value: http://discovery-service:8761/eureka
             - name: DATABASE_URL
-              value: jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
+              value: <database-url>
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
