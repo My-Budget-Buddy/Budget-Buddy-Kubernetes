@@ -2,6 +2,9 @@
 // <service-name> - the name of the service (i.e. user-service for kubernetes)
 // <pascal-service-name> - the name of the service in PascalCase (i.e. UserService for the SonarQube project key)
 // <namespace> - the namespace of the service
+// <reviewer> - the GitHub usernames of the reviewer
+// <head-branch> - the branch where changes are coming from (i.e. dev)
+// <base-branch> - the branch where changes are going to (i.e. main)
 pipeline {
   agent {
     kubernetes {
@@ -82,6 +85,12 @@ pipeline {
         PASCAL_SERVICE_NAME = '<pascal-service-name>'
         NAMESPACE = '<namespace>'
         EUREKA_URL = 'http://<service-name>.<namespace>.svc.cluster.local:8761/eureka'
+
+        CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
+        PEM = credentials('GITHUB_APP_PEM')
+        REVIEWER_GITHUB_USERNAME = '<reviewer>'
+        TEST_BRANCH = '<head-branch>'
+        MAIN_BRANCH = '<base-branch>'
     }
 
     stages {
@@ -277,7 +286,126 @@ pipeline {
 
   post {
     always {
-      cleanWs()
+        cleanWs()
+    }
+
+    success {
+      script {
+       if (env.BRANCH_NAME == 'testing-cohort') {
+        def now = sh(script: 'date +%s', returnStdout: true).trim()
+        def iat = (now.toInteger() - 60).toString()
+        def exp = (now.toInteger() + 600).toString()
+
+        echo "Current time: ${now}"
+        echo "Issued at: ${iat}"
+        echo "Expires at: ${exp}"
+
+        // Generate JWT
+        def JWT = sh(script: """
+            #!/bin/bash
+            client_id="${CLIENT_ID}"
+            pem="${PEM}"
+            iat="${iat}"
+            exp="${exp}"
+            b64enc() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+            header=\$(echo -n '{"typ":"JWT","alg":"RS256"}' | b64enc)
+            payload=\$(echo -n "{\\"iat\\":\${iat},\\"exp\\":\${exp},\\"iss\\":\\"\${client_id}\\"}" | b64enc)
+            header_payload="\${header}.\${payload}"
+
+            pem_file=\$(mktemp)
+            echo "\${pem}" > "\${pem_file}"
+
+            signature=\$(echo -n "\${header_payload}" | openssl dgst -sha256 -sign "\${pem_file}" | b64enc)
+            JWT="\${header_payload}.\${signature}"
+            rm -f "\${pem_file}"
+            echo "\${JWT}"
+        """, returnStdout: true).trim()
+        echo "Generated JWT: ${JWT}"
+
+  
+          // Retrieve access token
+          def tokenResponse = httpRequest(
+                    url: "https://api.github.com/app/installations/54988601/access_tokens",
+                    httpMode: 'POST',
+                    customHeaders: [
+                        [name: 'Accept', value: '*/*'],
+                        [name: 'Authorization', value: "Bearer ${JWT}"],
+                    ],
+                    contentType: 'APPLICATION_JSON'
+                )
+        
+        def GITHUB_TOKEN = null
+        
+        if (tokenResponse.status == 201) { // 201 is the status code for created
+          def jsonResponse = readJSON text: tokenResponse.content
+          GITHUB_TOKEN = jsonResponse.token
+
+          echo "Access token ${GITHUB_TOKEN} created."
+        } else {
+            error "Access token retrieval failed, aborting pipeline"
+        }
+
+          
+        // Create the Pull Request
+        def pullResponse = httpRequest(
+                    url: "https://api.github.com/repos/My-Budget-Buddy/Budget-Buddy-${PASCAL_SERVICE_NAME}/pulls",
+                    httpMode: 'POST',
+                    customHeaders: [
+                        [name: 'Accept', value: '*/*'],
+                        [name: 'Authorization', value: "Bearer ${GITHUB_TOKEN}"],
+                    ],
+                    contentType: 'APPLICATION_JSON',
+                    requestBody: """
+                        {
+                            "title": "Automated PR: Pipeline successful",
+                            "head": "${TEST_BRANCH}",
+                            "base": "${MAIN_BRANCH}",
+                            "body": "This pull request was created automatically after a successful pipeline run."
+                        }
+                    """
+                )
+
+        // Extract PR number from the response
+        if (pullResponse.status == 201) { // 201 is the status code for created
+          def jsonResponse = readJSON text: pullResponse.content
+          int prNumber = jsonResponse.number
+
+          echo "PR #${prNumber} created."
+
+          // Request Reviewers for the Pull Request
+          String reviewerApiUrl = "https://api.github.com/repos/My-Budget-Buddy/Budget-Buddy-${PASCAL_SERVICE_NAME}/pulls/${prNumber}/requested_reviewers"
+          String reviewerPayload = """
+                {
+                    "reviewers": ["${REVIEWER_GITHUB_USERNAME}"]
+                }
+                """
+
+          def reviewerResponse = httpRequest(
+                    url: reviewerApiUrl,
+                    httpMode: 'POST',
+                    customHeaders: [
+                        [name: 'Accept', value: 'application/vnd.github+json'],
+                        [name: 'Authorization', value: "Bearer ${GITHUB_TOKEN}"],
+                        [name: 'X-GitHub-Api-Version', value: '2022-11-28']
+                    ],
+                    contentType: 'APPLICATION_JSON',
+                    requestBody: reviewerPayload
+                )
+
+          if (reviewerResponse.status == 201) {
+              echo "Reviewers requested for PR #${prNumber}."
+          } else {
+              echo "Failed to request reviewers for PR #${prNumber}. Status: ${reviewerResponse.status}"
+          }
+        } else {
+              echo "Failed to create PR. Status: ${response.status}"
+        }
+      }
+      }
+    }
+
+    failure {
+      echo 'The pipeline failed. No pull request created.'
     }
   }
 }
