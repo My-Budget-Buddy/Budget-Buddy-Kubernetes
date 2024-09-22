@@ -1,7 +1,6 @@
 // TEMPLATE REPLACEMENTS
 // <service-name> - the name of the service (i.e. user-service for kubernetes)
 // <pascal-service-name> - the name of the service in PascalCase (i.e. UserService for the SonarQube project key)
-// <namespace> - the namespace of the service
 // <reviewer1>, <reviewer2>, <reviewer3> - the GitHub usernames of the reviewer(s); 1 required for BE, 3 for FE
 // <head-branch> - the branch where changes are coming from (i.e. dev)
 // <base-branch> - the branch where changes are going to (i.e. main)
@@ -83,7 +82,6 @@ pipeline {
     environment {
         SERVICE_NAME = '<service-name>'
         PASCAL_SERVICE_NAME = '<pascal-service-name>'
-        NAMESPACE = '<namespace>'
         EUREKA_URL = 'http://<service-name>.<namespace>.svc.cluster.local:8761/eureka'
 
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
@@ -94,6 +92,19 @@ pipeline {
     }
 
     stages {
+        // Set namespace
+        stage('Set Namespace') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "${TEST_BRANCH}") {
+                        env.NAMESPACE = 'staging'
+                    } else if (env.BRANCH_NAME == "${MAIN_BRANCH}") {
+                        env.NAMESPACE = 'prod'
+                    }
+                }
+            }
+        }
+
         // Pull all git dependencies
         stage('Pull Dependencies'){
             steps{
