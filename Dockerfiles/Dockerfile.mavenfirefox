@@ -1,0 +1,2 @@
+FROM 924809052459.dkr.ecr.us-east-1.amazonaws.com/maven:latest
+RUN amazon-linux-extras install firefox
