@@ -82,7 +82,7 @@ pipeline {
     environment {
         SERVICE_NAME = '<service-name>'
         PASCAL_SERVICE_NAME = '<pascal-service-name>'
-        TEST_DATABASE_URL = 'jdbc:postgresql://postgres:5432/my_budget_buddy/'
+        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres:5432/my_budget_buddy/'
         PROD_DATABASE_URL = 'jdbc:postgresql://budgetbuddy-0.c4eqo06kg56i.us-east-1.rds.amazonaws.com/my_budget_buddy'
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
         PEM = credentials('GITHUB_APP_PEM')
@@ -112,8 +112,8 @@ pipeline {
             }
         }
 
-        // Build the project for the staging environment
-        stage('Build for Staging') {
+        // Build the project
+        stage('Build') {
             when {
                 branch 'testing-cohort'
             }
@@ -164,7 +164,7 @@ pipeline {
                     string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
                         sh '''
-                            export DATABASE_URL=${TEST_DATABASE_URL}
+                            export DATABASE_URL=${STAGING_DATABASE_URL}
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
                                 -Dspring.datasource.url=$DATABASE_URL \
                                 -Dspring.datasource.username=$DATABASE_USER \
@@ -194,8 +194,8 @@ pipeline {
             steps {
                 container('maven') {
                     withCredentials([
-                    string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USER'),
-                    string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
+                    string(credentialsId: 'PROD_DATABASE_USER', variable: 'DATABASE_USER'),
+                    string(credentialsId: 'PROD_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
                         sh '''
                             export DATABASE_URL=${PROD_DATABASE_URL}
@@ -254,34 +254,76 @@ pipeline {
             }
         }
 
-    steps {
-        container('aws-kubectl') {
-            withCredentials([
-                  string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USERNAME'),
-                  string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASSWORD')])
-            {
-            sh '''
-            aws eks --region us-east-1 update-kubeconfig --name project3-eks
+        // Deploy the service to EKS for staging
+        stage('Deploy to EKS for Staging') {
+            when {
+                branch 'testing-cohort'
+            }
 
-            # deploy service
+            steps {
+                container('aws-kubectl') {
+                    withCredentials([
+                        string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USERNAME'),
+                        string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASSWORD')])
+                    {
+                        sh '''
+                        aws eks --region us-east-1 update-kubeconfig --name project3-eks
 
-            cd Budget-Buddy-Kubernetes/Deployments/Services
-            # set test image
-            sed -i "s/test-latest/test-latest/" deployment-${SERVICE_NAME}.yaml
-            # set test DB url
-            # note use of | as delimiter because of forward slashes in the url
-            sed -i 's|<database-url>|${TEST_DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
+                        # deploy service
 
-            # reapply
+                        cd Budget-Buddy-Kubernetes/Deployments/Services
+                        # set test image
+                        sed -i "s/test-latest/test-latest/" deployment-${SERVICE_NAME}.yaml
+                        # set test DB url
+                        # note use of | as delimiter because of forward slashes in the url
+                        sed -i 's|<database-url>|${STAGING_DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
 
-            kubectl delete -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE} || true 
-            kubectl apply -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE}
-            '''
+                        # reapply
+
+                        kubectl delete -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE} || true 
+                        kubectl apply -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE}
+                        '''
+                    }
+                }
             }
         }
-      }
+
+        // Deploy the service to EKS for production
+        stage('Deploy to EKS for Production') {
+            when {
+                branch 'testing-main'
+            }
+
+            steps {
+                container('aws-kubectl') {
+                    withCredentials([
+                        string(credentialsId: 'PROD_DATABASE_USER', variable: 'DATABASE_USERNAME'),
+                        string(credentialsId: 'PROD_DATABASE_PASSWORD', variable: 'DATABASE_PASSWORD')])
+                    {
+                        sh '''
+                        aws eks --region us-east-1 update-kubeconfig --name project3-eks
+
+                        # deploy service
+
+                        cd Budget-Buddy-Kubernetes/Deployments/Services
+                        # set prod image
+                        sed -i "s/latest/latest/" deployment-${SERVICE_NAME}.yaml
+
+                        # set prod DB url
+                        # note use of | as delimiter because of forward slashes in the url
+                        sed -i 's|<database-url>|${PROD_DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
+
+                        # reapply
+
+                        kubectl delete -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE} || true 
+                        kubectl apply -f ./deployment-${SERVICE_NAME}.yaml --namespace=${NAMESPACE}
+                        '''
+                    }
+                }
+            }
+        }
     }
-  }
+    
   
   // add functional, performance tests
 
@@ -556,4 +598,3 @@ def requestReviewersForRevert(prAuthor, GITHUB_TOKEN, jsonResponse) {
         echo "Failed to request reviewers for revert PR #${revertPrNumber}. Status: ${revertRequestResponse.status}"
     }
 }
-
