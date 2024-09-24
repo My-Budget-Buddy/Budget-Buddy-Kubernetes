@@ -163,22 +163,22 @@ pipeline {
                     string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USER'),
                     string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
-                        sh '''
+                        sh """
                             export DATABASE_URL=${STAGING_DATABASE_URL}
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
                                 -Dspring.datasource.url=$DATABASE_URL \
                                 -Dspring.datasource.username=$DATABASE_USER \
                                 -Dspring.datasource.password=$DATABASE_PASS
-                        '''
+                        """
                         withSonarQubeEnv('SonarCloud') {
-                            sh '''
+                            sh """
                                 mvn sonar:sonar \
                                     -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-${PASCAL_SERVICE_NAME} \
                                     -Dsonar.projectName=Budget-Buddy-${PASCAL_SERVICE_NAME} \
                                     -Dsonar.java.binaries=target/classes \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                    -Dsonar.branch.name=testing-cohort
-                            '''
+                                    -Dsonar.branch.name=${env.BRANCH_NAME}
+                            """
                         }
                     }
                 }
