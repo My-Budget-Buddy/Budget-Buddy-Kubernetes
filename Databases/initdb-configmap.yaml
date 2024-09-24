@@ -4,9 +4,11 @@ metadata:
   name: initdb-configmap
 data:
   init.sql: |
-    CREATE DATABASE IF NOT EXISTS my_budget_buddy;
+    DROP DATABASE IF EXISTS my_budget_buddy;
 
-    USE my_budget_buddy;
+    CREATE DATABASE my_budget_buddy;
+
+    \c my_budget_buddy;
 
     --- AUTH ---
 
@@ -33,6 +35,9 @@ data:
 
     INSERT INTO user_credentials (username, oauth2_idp, user_role)
     VALUES ('user04@gmail.com', 'GOOGLE', 'USER');
+
+    INSERT INTO user_credentials (username, user_password, user_role)
+    VALUES ('frontend.tests@gmail.com', '$2y$10$R.AVbuzy7f7Vijnj94DF1.7aI8C7V4Zwbf2FWAWk2dCRC3n1iOkbG', 'USER');
 
 
 
@@ -65,6 +70,8 @@ data:
     INSERT INTO users (email, first_name, last_name)
     VALUES ('user04@domain.com', 'User', 'Four');
 
+    INSERT INTO users (email, first_name, last_name)
+    VALUES ('frontend.tests@gmail.com', 'John', 'Doe');
 
 
     --- BUDGETS ---
@@ -110,7 +117,9 @@ data:
     (2, 'Utilities', 200.00, FALSE, '2024-05-01', 'Electricity and water bill'),
     (2, 'Internet', 50.00, TRUE, '2024-05-01', 'Monthly internet bill'),
     (3, 'Entertainment', 100.00, FALSE, '2024-05-01', 'Movies and dining out'),
-    (3, 'Savings', 500.00, TRUE, '2024-05-01', 'Monthly savings deposit');
+    (3, 'Savings', 500.00, TRUE, '2024-05-01', 'Monthly savings deposit'),
+    (5, 'Groceries', 150.00, FALSE, '2024-09-01', 'Weekly grocery shopping'),
+    (5, 'Rent', 1200.00, TRUE, '2024-09-01', 'May rent payment');
 
     INSERT INTO buckets (user_id, bucket_name, amount_required, amount_reserved, month_year, is_reserved, is_active) VALUES
     (1, 'Vacation Fund', 2000.00, 500.00, '2024-05-01', FALSE, TRUE),
@@ -118,12 +127,15 @@ data:
     (2, 'Car Maintenance', 500.00, 100.00, '2024-05-01', FALSE, FALSE),
     (2, 'Home Improvement', 1500.00, 750.00, '2024-05-01', TRUE, TRUE),
     (3, 'New Laptop', 1200.00, 600.00, '2024-05-01', FALSE, TRUE),
-    (3, 'Health Insurance', 800.00, 400.00, '2024-05-01', TRUE, FALSE);
+    (3, 'Health Insurance', 800.00, 400.00, '2024-05-01', TRUE, FALSE),
+    (5, 'Vacation Fund', 2000.00, 500.00, '2024-09-01', FALSE, TRUE),
+    (5, 'Emergency Fund', 1000.00, 300.00, '2024-09-01', TRUE, TRUE);
 
     INSERT INTO monthly_summary (user_id, month_year, projected_income, total_budget_amount) VALUES
     (1, '2024-05-01', 7777.00, 1111.00),
     (2, '2024-05-01', 9999.00, 3333.00),
-    (3, '2024-05-01', 9876.00, 999.00);
+    (3, '2024-05-01', 9876.00, 999.00),
+    (5, '2024-09-01', 7777.00, 1111.00);
 
 
 
@@ -999,8 +1011,39 @@ data:
     (1, 1, 'Costco', '2024-03-15', 50.00, 'Bulk groceries', 'GROCERIES'),
     (1, 2, 'Costco', '2024-03-15', 425.00, 'Bulk groceries', 'GROCERIES'),
     (1, 1, 'Costco', '2024-03-15', 267.10, 'Bulk groceries', 'GROCERIES'),
-    (1, 3, 'Costco', '2024-03-15', 89.10, 'Bulk groceries', 'GROCERIES');
+    (1, 3, 'Costco', '2024-03-15', 89.10, 'Bulk groceries', 'GROCERIES'),
 
+    (5, 1, 'Amazon', '2024-09-15', 59.99, 'Purchase of electronics', 'SHOPPING'),
+    (5, 2, 'Starbucks', '2024-05-16', 4.75, 'Coffee and snacks', 'DINING'),
+    (5, 1, 'Walmart', '2024-05-17', 120.00, 'Grocery shopping', 'GROCERIES'),
+    (5, 3, 'Apple Store', '2024-09-18', 999.99, 'New iPhone purchase', 'SHOPPING'),
+    (5, 3, 'Netflix', '2024-05-19', 15.99, 'Monthly subscription', 'ENTERTAINMENT'),
+    (5, 3, 'Shell', '2024-05-20', 45.50, 'Gas for car', 'TRANSPORTATION'),
+    (5, 1, 'Costco', '2024-05-21', 200.00, 'Bulk shopping', 'GROCERIES'),
+    (5, 2, 'Uber', '2024-05-22', 25.00, 'Ride to airport', 'TRANSPORTATION'),
+    (5, 3, 'Spotify', '2024-05-23', 9.99, 'Monthly subscription', 'ENTERTAINMENT'),
+    (5, 1, 'Best Buy', '2024-05-24', 499.99, 'Laptop purchase', 'SHOPPING'),
+    (5, 2, 'Skillstorm', '2024-09-10', 2010.45, 'Paycheck', 'INCOME'),
+    (5, 2, 'Whole Foods', '2024-05-29', 75.34, 'Organic groceries', 'GROCERIES'),
+    (5, 1, 'Home Depot', '2024-08-28', 120.50, 'Home improvement tools', 'LIVING_EXPENSES'),
+    (5, 3, 'Lyft', '2024-08-27', 30.00, 'Ride to downtown', 'TRANSPORTATION'),
+    (5, 2, 'Target', '2024-07-26', 150.00, 'Clothing and household items', 'SHOPPING'),
+    (5, 1, 'Walgreens', '2024-06-25', 25.99, 'Pharmacy and essentials', 'HEALTHCARE'),
+    (5, 2, 'Airbnb', '2024-06-25', 250.00, 'Weekend getaway', 'ENTERTAINMENT'),
+    (5, 1, 'Chipotle', '2024-09-01', 12.75, 'Lunch', 'DINING'),
+    (5, 1, 'Microsoft Store', '2024-09-05', 150.00, 'Office software', 'SHOPPING'),
+    (5, 1, 'BP', '2024-07-10', 48.50, 'Gas for car', 'TRANSPORTATION'),
+    (5, 1, 'Costco', '2024-07-15', 220.00, 'Bulk groceries', 'GROCERIES'),
+    (5, 3, 'Hulu', '2024-07-20', 11.99, 'Monthly subscription', 'ENTERTAINMENT'),
+    (5, 2, 'Pandora', '2024-07-25', 4.99, 'Monthly subscription', 'ENTERTAINMENT'),
+    (5, 1, 'Publix', '2024-06-30', 80.00, 'Groceries and snacks', 'GROCERIES'),
+    (5, 2, 'REI', '2024-05-24', 200.00, 'Outdoor gear', 'SHOPPING'),
+    (5, 2, 'DHL', '2024-08-30', 50.00, 'Package delivery', 'MISC'),
+    (5, 1, 'Costco', '2024-09-15', 100.00, 'Bulk groceries', 'GROCERIES'),
+    (5, 1, 'Costco', '2024-05-15', 50.00, 'Bulk groceries', 'GROCERIES'),
+    (5, 2, 'Costco', '2024-08-14', 425.00, 'Bulk groceries', 'GROCERIES'),
+    (5, 1, 'Costco', '2024-07-13', 267.10, 'Bulk groceries', 'GROCERIES'),
+    (5, 3, 'Costco', '2024-09-12', 89.10, 'Bulk groceries', 'GROCERIES');
 
 
     --- ACCOUNTS ---
@@ -1029,23 +1072,33 @@ data:
     VALUES 
     ('123456789', 'Bank of Skillstorm - Checking', NULL, '111000025', 1500.00, 'CHECKING', '1'),
     ('987654321', 'Unity Financial - Checking', NULL, '111000026', 2000.00, 'CHECKING', '1'),
-    ('112233445', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '1');
+    ('112233445', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '1'),
+    ('123456790', 'Bank of Skillstorm - Checking', NULL, '111000025', 1500.00, 'CHECKING', '5'),
+    ('987654322', 'Unity Financial - Checking', NULL, '111000026', 2000.00, 'CHECKING', '5'),
+    ('112233446', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '5');
 
     INSERT INTO accounts (account_number, institution, investment_rate, routing_number, starting_balance, _type, user_id)
     VALUES 
     ('223344556', 'Bank of Skillstorm - Savings', NULL, '222000025', 3000.00, 'SAVINGS', '1'),
-    ('667788990', 'Unity Financial - Savings', NULL, '222000026', 2500.00, 'SAVINGS', '1');
+    ('667788990', 'Unity Financial - Savings', NULL, '222000026', 2500.00, 'SAVINGS', '1'),
+    ('223344557', 'Bank of Skillstorm - Savings', NULL, '222000025', 3000.00, 'SAVINGS', '5'),
+    ('667788991', 'Unity Financial - Savings', NULL, '222000026', 2500.00, 'SAVINGS', '5');
 
     INSERT INTO accounts (account_number, institution, investment_rate, routing_number, starting_balance, _type, user_id)
     VALUES 
     ('445566778', 'Ascend Financial Group', NULL, '333000025', 500.00, 'CREDIT', '1'),
-    ('998877665', 'Keystone Bank', NULL, '333000026', 800.00, 'CREDIT', '1');
+    ('998877665', 'Keystone Bank', NULL, '333000026', 800.00, 'CREDIT', '1'),
+    ('445566779', 'Ascend Financial Group', NULL, '333000025', 500.00, 'CREDIT', '5'),
+    ('998877666', 'Keystone Bank', NULL, '333000026', 800.00, 'CREDIT', '5');
 
     INSERT INTO accounts (account_number, institution, investment_rate, routing_number, starting_balance, _type, user_id)
     VALUES 
     ('554433221', 'Horizon Wealth Management', 5.00, '444000025', 10000.00, 'INVESTMENT', '1'),
-    ('776655443', 'Prestige Investment Group', 4.50, '444000026', 8000.00, 'INVESTMENT', '1');
+    ('776655443', 'Prestige Investment Group', 4.50, '444000026', 8000.00, 'INVESTMENT', '1'),
+    ('554433222', 'Horizon Wealth Management', 5.00, '444000025', 10000.00, 'INVESTMENT', '5'),
+    ('776655444', 'Prestige Investment Group', 4.50, '444000026', 8000.00, 'INVESTMENT', '5');
 
     INSERT INTO accounts (account_number, institution, investment_rate, routing_number, starting_balance, _type, user_id)
     VALUES 
-    ('112233446', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '2');
+    ('112233446', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '2'),
+    ('112233447', 'Heritage Bank', NULL, '111000027', 1200.00, 'CHECKING', '5');
