@@ -6,6 +6,6 @@ fi
 
 API_ENDPOINT=$1
 
-rm .env
+rm -f .env
 echo "VITE_BASE_API_ENDPOINT=$API_ENDPOINT" > .env
 npm install && npm run build
