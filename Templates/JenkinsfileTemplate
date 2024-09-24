@@ -163,13 +163,13 @@ pipeline {
                     string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USER'),
                     string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
-                        sh """
+                        sh '''
                             export DATABASE_URL=${STAGING_DATABASE_URL}
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
                                 -Dspring.datasource.url=$DATABASE_URL \
-                                -Dspring.datasource.username=${DATABASE_USER} \
-                                -Dspring.datasource.password=${DATABASE_PASS}
-                        """
+                                -Dspring.datasource.username=$DATABASE_USER \
+                                -Dspring.datasource.password=$DATABASE_PASS
+                        '''
                         withSonarQubeEnv('SonarCloud') {
                             sh """
                                 mvn sonar:sonar \
@@ -197,13 +197,13 @@ pipeline {
                     string(credentialsId: 'PROD_DATABASE_USER', variable: 'DATABASE_USER'),
                     string(credentialsId: 'PROD_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
-                        sh """
+                        sh '''
                             export DATABASE_URL=${PROD_DATABASE_URL}
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
                                 -Dspring.datasource.url=$DATABASE_URL \
-                                -Dspring.datasource.username=${DATABASE_USER} \
-                                -Dspring.datasource.password=${DATABASE_PASS}
-                        """
+                                -Dspring.datasource.username=$DATABASE_USER \
+                                -Dspring.datasource.password=$DATABASE_PASS
+                        '''
                         withSonarQubeEnv('SonarCloud') {
                             sh """
                                 mvn sonar:sonar \
