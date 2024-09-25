@@ -82,7 +82,7 @@ pipeline {
     environment {
         SERVICE_NAME = '<service-name>'
         PASCAL_SERVICE_NAME = '<pascal-service-name>'
-        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres:5432/my_budget_buddy/'
+        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres:5432/my_budget_buddy'
         PROD_DATABASE_URL = 'jdbc:postgresql://budgetbuddy-0.c4eqo06kg56i.us-east-1.rds.amazonaws.com/budgetbuddy'
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
         PEM = credentials('GITHUB_APP_PEM')
