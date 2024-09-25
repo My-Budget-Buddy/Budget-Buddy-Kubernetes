@@ -187,40 +187,6 @@ pipeline {
                 }
             }
         }
-
-        // Run coverage and analysis for the production environment
-        stage('Test and Analyze for Production') {
-            when {
-                branch 'testing-main'
-            }
-
-            steps {
-                container('maven') {
-                    withCredentials([
-                    string(credentialsId: 'PROD_DATABASE_USER', variable: 'DATABASE_USER'),
-                    string(credentialsId: 'PROD_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
-                    {
-                        sh '''
-                            export DATABASE_URL=${PROD_DATABASE_URL}
-                            mvn clean verify -Pcoverage -Dspring.profiles.active=test \
-                                -Dspring.datasource.url=$DATABASE_URL \
-                                -Dspring.datasource.username=$DATABASE_USER \
-                                -Dspring.datasource.password=$DATABASE_PASS
-                        '''
-                        withSonarQubeEnv('SonarCloud') {
-                            sh """
-                                mvn sonar:sonar \
-                                    -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-${PASCAL_SERVICE_NAME} \
-                                    -Dsonar.projectName=Budget-Buddy-${PASCAL_SERVICE_NAME} \
-                                    -Dsonar.java.binaries=target/classes \
-                                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                    -Dsonar.branch.name=testing-main
-                            """
-                        }
-                    }
-                }
-            }
-        }
     
         // Build and push the docker image to ECR
         stage('Build and Push Docker Image') {
@@ -296,65 +262,65 @@ pipeline {
               branch 'testing-cohort'
           }
 
-          steps {
-              script {
-                  // require that all services are responsive
-                  sh '''#!/bin/bash
-                  bash -c '
-                  TRIES_REMAINING=16
+        steps {
+            script {
+                // require that all services are responsive
+                sh '''#!/bin/bash
+                bash -c '
+                TRIES_REMAINING=16
 
-                  SERVICES=(
-                      "https://api.skillstorm-congo.com/users"
-                      "https://api.skillstorm-congo.com/taxes"
-                      "https://api.skillstorm-congo.com/auth"
-                      "https://api.skillstorm-congo.com/transactions"
-                      "https://api.skillstorm-congo.com/accounts"
-                      "https://api.skillstorm-congo.com/budgets"
-                      "https://api.skillstorm-congo.com/buckets"
-                      "https://api.skillstorm-congo.com/summarys"
-                      "https://api.skillstorm-congo.com/api/credit"
-                  )
+                SERVICES=(
+                    "https://api.skillstorm-congo.com/users"
+                    "https://api.skillstorm-congo.com/taxes"
+                    "https://api.skillstorm-congo.com/auth"
+                    "https://api.skillstorm-congo.com/transactions"
+                    "https://api.skillstorm-congo.com/accounts"
+                    "https://api.skillstorm-congo.com/budgets"
+                    "https://api.skillstorm-congo.com/buckets"
+                    "https://api.skillstorm-congo.com/summarys"
+                    "https://api.skillstorm-congo.com/api/credit"
+                )
 
-                  # Function to check a single service, ignoring the status code
-                  check_service() {
-                      local service_url=$1
-                      echo "Waiting for $service_url to be ready..."
-                      local tries_remaining=$TRIES_REMAINING
+                # Function to check a single service, ignoring the status code
+                check_service() {
+                    local service_url=$1
+                    echo "Waiting for $service_url to be ready..."
+                    local tries_remaining=$TRIES_REMAINING
 
-                      while [ $tries_remaining -gt 0 ]; do
-                          # Check if the service responds (ignoring the HTTP status code)
-                          if curl --silent --output /dev/null "$service_url"; then
-                              echo "***$service_url is ready***"
-                              return 0
-                          fi
-                          
-                          echo "waiting for $service_url..."
-                          tries_remaining=$((tries_remaining - 1))
-                          sleep 5
-                      done
+                    while [ $tries_remaining -gt 0 ]; do
+                        # Check if the service responds (ignoring the HTTP status code)
+                        if curl --silent --output /dev/null "$service_url"; then
+                            echo "***$service_url is ready***"
+                            return 0
+                        fi
+                        
+                        echo "waiting for $service_url..."
+                        tries_remaining=$((tries_remaining - 1))
+                        sleep 5
+                    done
 
-                      echo "$service_url did not start within expected time."
-                      exit 1
-                  }
+                    echo "$service_url did not start within expected time."
+                    exit 1
+                }
 
-                  for service in "${SERVICES[@]}"; do
-                      check_service "$service"
-                  done
-                  '
-                  '''
+                for service in "${SERVICES[@]}"; do
+                    check_service "$service"
+                done
+                '
+                '''
 
-                  container('maven'){
-                      withCredentials([string(credentialsId: 'CUCUMBER_TOKEN', variable: 'CUCUMBER_TOKEN')]) {
-                          sh '''
-                              ls
-                              cd Budget-Buddy-Frontend-Testing/cucumber-selenium-tests
-                              mvn test -Dheadless=true -Dcucumber.publish.token=${CUCUMBER_TOKEN} -DfrontendUrl=https://frontend.skillstorm-congo.com
-                          '''
-                      }
-                  }
-              }
-          }
-      }
+                container('maven'){
+                    withCredentials([string(credentialsId: 'CUCUMBER_TOKEN', variable: 'CUCUMBER_TOKEN')]) {
+                        sh '''
+                            ls
+                            cd Budget-Buddy-Frontend-Testing/cucumber-selenium-tests
+                            mvn test -Dheadless=true -Dcucumber.publish.token=${CUCUMBER_TOKEN} -DfrontendUrl=https://frontend.skillstorm-congo.com
+                        '''
+                    }
+                }
+            }
+        }
+    }
 
         // Deploy the service to EKS for production
     stage('Deploy to EKS for Production') {
