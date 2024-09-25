@@ -117,9 +117,6 @@ pipeline {
 
         // Build the project
         stage('Build') {
-            when {
-                branch 'testing-cohort'
-            }
 
             steps {
                 container('maven') {
@@ -167,7 +164,7 @@ pipeline {
                     string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
                         sh '''
-                            export DATABASE_URL=${STAGING_DATABASE_URL}
+                            export DATABASE_URL=jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
                                 -Dspring.datasource.url=$DATABASE_URL \
                                 -Dspring.datasource.username=$DATABASE_USER \
@@ -203,7 +200,7 @@ pipeline {
                         imageTag = 'latest'
                         }
 
-                        sh '''
+                        sh """
                         export IMAGE_TAG=''' + imageTag + '''
                         rm -rf /var/lock
                         # Get the ECR login password
@@ -217,7 +214,7 @@ pipeline {
                             echo ${imageTag}
                             
                         /kaniko/executor --dockerfile=Dockerfile.prod --context=dir://. --destination=924809052459.dkr.ecr.us-east-1.amazonaws.com/${SERVICE_NAME}:${IMAGE_TAG}
-                        '''
+                        """
                     }
                 }
             }
@@ -242,7 +239,7 @@ pipeline {
 
                         cd Budget-Buddy-Kubernetes/Deployments/Services
                         # set test image
-                        sed -i "s/test-latest/test-latest/" deployment-${SERVICE_NAME}.yaml
+                        sed -i "s/<image-tag>/test-latest/" deployment-${SERVICE_NAME}.yaml
                         # set test DB url
                         # note use of | as delimiter because of forward slashes in the url
                         sed -i 's|<database-url>|${STAGING_DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
@@ -341,7 +338,7 @@ pipeline {
 
                     cd Budget-Buddy-Kubernetes/Deployments/Services
                     # set prod image
-                    sed -i "s/latest/latest/" deployment-${SERVICE_NAME}.yaml
+                    sed -i "s/<image-tag>/latest/" deployment-${SERVICE_NAME}.yaml
 
                     # set prod DB url
                     # note use of | as delimiter because of forward slashes in the url
