@@ -38,13 +38,6 @@ spec:
           ports:
             - containerPort: 8085
               name: http
-          resources:
-            limits:
-              cpu: "1"
-              memory: "512Mi"
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
           env:
             - name: AWS_HOSTNAME
               valueFrom:
