@@ -119,7 +119,9 @@ data:
     (3, 'Entertainment', 100.00, FALSE, '2024-05-01', 'Movies and dining out'),
     (3, 'Savings', 500.00, TRUE, '2024-05-01', 'Monthly savings deposit'),
     (5, 'Groceries', 150.00, FALSE, '2024-09-01', 'Weekly grocery shopping'),
-    (5, 'Rent', 1200.00, TRUE, '2024-09-01', 'May rent payment');
+    (5, 'Rent', 1200.00, TRUE, '2024-09-01', 'May rent payment'),
+    (1, 'Groceries', 400.00, TRUE, '2024-09-01', 'Monthly grocery shopping'),
+    (1, 'Internet', 60.00, TRUE, '2024-09-01', 'Monthly internet bill');
 
     INSERT INTO buckets (user_id, bucket_name, amount_required, amount_reserved, month_year, is_reserved, is_active) VALUES
     (1, 'Vacation Fund', 2000.00, 500.00, '2024-05-01', FALSE, TRUE),
