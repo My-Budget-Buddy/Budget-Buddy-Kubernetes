@@ -5,7 +5,7 @@ Budget Buddy Kubernetes
 ## Overview
 This is a project supporting the deployment of the [Budget Buddy personal finance application](https://github.com/My-Budget-Buddy) to a Kubernetes cluster.
 
-Budget Buddy is application utilizing microservice architecture that would benefit from the pod orchestration offered by Kubernetes. This readme will guide the reader to set up Budget Buddy on an Amazon EKS cluster.
+Budget Buddy is an application utilizing microservice architecture that would benefit from the pod orchestration offered by Kubernetes. This readme will guide the reader to set up Budget Buddy on an Amazon EKS cluster.
 
 ## Installation
 
